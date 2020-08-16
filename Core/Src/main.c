@@ -1,29 +1,33 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under BSD 3-Clause license,
+ * the "License"; You may not use this file except in compliance with the
+ * License. You may obtain a copy of the License at:
+ *                        opensource.org/licenses/BSD-3-Clause
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "CE32_stepper_motor_driver.h"
+#include "FTL_Sampling.h"
+#include "CE32_COMMAND.h"
+#include "CE32_UART_INTERCOM.h"
+#include "string.h"
 
 /* USER CODE END Includes */
 
@@ -46,11 +50,15 @@ ADC_HandleTypeDef hadc1;
 
 RTC_HandleTypeDef hrtc;
 
+TIM_HandleTypeDef htim16;
+
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-
+CE32_stepMotor motor[4];
+FTL_sampling sampler;
+CE32_INTERCOM_Handle hCOMM;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,8 +68,12 @@ static void MX_RTC_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
+void Motor_init(void);
+int Vector_Control(int16_t *locs,int len);
+int Measure_SendRst(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -101,19 +113,49 @@ int main(void)
   MX_USART3_UART_Init();
   MX_ADC1_Init();
   MX_USART1_UART_Init();
-  MX_USB_DEVICE_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
 
+	Motor_init();
+	CE32_INTERCOM_Init(&hCOMM, &huart3);
+	INTERCOM_UART_ENABLE(&hCOMM);
+	INTERCOM_UART_RXIT_ENABLE(&hCOMM);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+	while (1)
+	{
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+		//Command Processing services
+		uint8_t *data_ptr;
+		uint32_t cmd_len;
+		if(CE32_INTERCOM_RX_DequeueCmd(&hCOMM,&data_ptr,&cmd_len)==0)
+		{
+			switch(data_ptr[0])
+			{
+				case 0xD1:
+				{
+					Vector_Control((int16_t*)&data_ptr[1],4);
+					Measure_SendRst();
+					break;
+				}
+			}
+		}
+	}
+	//	Stepping_down_Distance(&motor[0], 50);
+	//	Stepping_down_Distance(&motor[1], 50);
+	//	Stepping_down_Distance(&motor[2], 50);
+	//
+	//	FTL_Sampling_Init(&sampler,1);
+	//	HAL_TIM_Base_Start_IT(&htim16);
+	//	HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
+	//	while((sampler.state&FTL_SAMPLE_STATE_FINISH)==0);
+	//	Stepping_up_Distance(&motor[0], 50);
+	//	Stepping_up_Distance(&motor[1], 50);
+	//	Stepping_up_Distance(&motor[2], 50);
   /* USER CODE END 3 */
 }
 
@@ -154,14 +196,14 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_RTC
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART3
+                              |RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_TIM16
                               |RCC_PERIPHCLK_ADC12;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
-  PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+  PeriphClkInit.Tim16ClockSelection = RCC_TIM16CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -266,6 +308,38 @@ static void MX_RTC_Init(void)
 }
 
 /**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 71;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 999;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -316,7 +390,7 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 38400;
+  huart3.Init.BaudRate = 19200;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;
@@ -324,7 +398,11 @@ static void MX_USART3_UART_Init(void)
   huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart3.Init.OverSampling = UART_OVERSAMPLING_16;
   huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_SWAP_INIT|UART_ADVFEATURE_RXOVERRUNDISABLE_INIT
+                              |UART_ADVFEATURE_DMADISABLEONERROR_INIT;
+  huart3.AdvancedInit.Swap = UART_ADVFEATURE_SWAP_ENABLE;
+  huart3.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
+  huart3.AdvancedInit.DMADisableonRxError = UART_ADVFEATURE_DMA_DISABLEONRXERROR;
   if (HAL_UART_Init(&huart3) != HAL_OK)
   {
     Error_Handler();
@@ -350,17 +428,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(C3_GPIO_Port, C3_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, C3_Pin|BLE_GND_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, A0_Pin|A1_Pin|A2_Pin|A3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(BLE_PWR_GPIO_Port, BLE_PWR_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOG, B0_Pin|C0_Pin|USB_PowerSwitchOn_Pin|D2_Pin 
@@ -374,7 +458,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = C3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(C3_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : USER_Btn_Pin */
@@ -387,14 +471,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = A0_Pin|A1_Pin|A2_Pin|A3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TRIG_IN_Pin */
-  GPIO_InitStruct.Pin = TRIG_IN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  /*Configure GPIO pin : TRIG_Pin */
+  GPIO_InitStruct.Pin = TRIG_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(TRIG_IN_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(TRIG_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
   GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
@@ -403,14 +488,28 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : B0_Pin C0_Pin USB_PowerSwitchOn_Pin D2_Pin 
-                           D0_Pin D3_Pin D1_Pin */
-  GPIO_InitStruct.Pin = B0_Pin|C0_Pin|USB_PowerSwitchOn_Pin|D2_Pin 
-                          |D0_Pin|D3_Pin|D1_Pin;
+  /*Configure GPIO pins : BLE_GND_Pin BLE_PWR_Pin */
+  GPIO_InitStruct.Pin = BLE_GND_Pin|BLE_PWR_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : B0_Pin C0_Pin D2_Pin D0_Pin 
+                           D3_Pin D1_Pin */
+  GPIO_InitStruct.Pin = B0_Pin|C0_Pin|D2_Pin|D0_Pin 
+                          |D3_Pin|D1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : USB_PowerSwitchOn_Pin */
+  GPIO_InitStruct.Pin = USB_PowerSwitchOn_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(USB_PowerSwitchOn_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : USB_OverCurrent_Pin */
   GPIO_InitStruct.Pin = USB_OverCurrent_Pin;
@@ -424,13 +523,90 @@ static void MX_GPIO_Init(void)
                           |C2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 }
 
 /* USER CODE BEGIN 4 */
+void Motor_init(void)
+{
+	int OnPeriod=1;
+	int PostPeriod=1;
+	float step_angle=5.625/64;
+	float distPerDeg=50.0/360;
+	CE32_stepMotor_InitStruct init;
+	init.Port_0=A0_GPIO_Port;
+	init.Pin_0=A0_Pin;
+	init.Port_1=A1_GPIO_Port;
+	init.Pin_1=A1_Pin;
+	init.Port_2=A2_GPIO_Port;
+	init.Pin_2=A2_Pin;
+	init.Port_3=A3_GPIO_Port;
+	init.Pin_3=A3_Pin;
+	init.Init_Pos=0;
+	init.Int_Period=PostPeriod;
+	init.On_Period=OnPeriod;
+	init.step_angle=step_angle;
+	init.distPerDegree=distPerDeg;
+	CE32_stepMotor_Init(&motor[0],&init);
 
+	init.Port_0=B0_GPIO_Port;
+	init.Pin_0=B0_Pin;
+	init.Port_1=B1_GPIO_Port;
+	init.Pin_1=B1_Pin;
+	init.Port_2=B2_GPIO_Port;
+	init.Pin_2=B2_Pin;
+	init.Port_3=B3_GPIO_Port;
+	init.Pin_3=B3_Pin;
+	init.Init_Pos=0;
+	CE32_stepMotor_Init(&motor[1],&init);
+
+	init.Port_0=C0_GPIO_Port;
+	init.Pin_0=C0_Pin;
+	init.Port_1=C1_GPIO_Port;
+	init.Pin_1=C1_Pin;
+	init.Port_2=C2_GPIO_Port;
+	init.Pin_2=C2_Pin;
+	init.Port_3=C3_GPIO_Port;
+	init.Pin_3=C3_Pin;
+	CE32_stepMotor_Init(&motor[2],&init);
+
+	init.Port_0=D0_GPIO_Port;
+	init.Pin_0=D0_Pin;
+	init.Port_1=D1_GPIO_Port;
+	init.Pin_1=D1_Pin;
+	init.Port_2=D2_GPIO_Port;
+	init.Pin_2=D2_Pin;
+	init.Port_3=D3_GPIO_Port;
+	init.Pin_3=D3_Pin;
+	CE32_stepMotor_Init(&motor[3],&init);
+}
+
+int Vector_Control(int16_t *locs,int len)
+{
+	if(len>4)
+		len=4;
+	for(int i=0;i<len;i++)
+	{
+		Stepping_To_Distance(&motor[i], locs[i]);
+	}
+	return 0;
+}
+
+int Measure_SendRst(void)
+{
+	FTL_Sampling_Init(&sampler,3);
+	HAL_TIM_Base_Start_IT(&htim16);
+	HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
+	while(sampler.state!=0x02);
+	uint8_t TX_cmd[SAMPLE_POINT+2];
+	TX_cmd [0]=0x3C;
+	TX_cmd[SAMPLE_POINT+1]=0x3E;
+	memcpy(&TX_cmd[1],sampler.buf,SAMPLE_POINT);
+	CE32_INTERCOM_TX_EnqueueCmd(&hCOMM, TX_cmd, SAMPLE_POINT+2);
+	return 0;
+}
 /* USER CODE END 4 */
 
 /**
@@ -440,7 +616,7 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
+	/* User can add his own implementation to report the HAL error return state */
 
   /* USER CODE END Error_Handler_Debug */
 }
@@ -456,7 +632,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 { 
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
+	/* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }

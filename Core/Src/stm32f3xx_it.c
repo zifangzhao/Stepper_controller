@@ -23,11 +23,17 @@
 #include "stm32f3xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "CE32_stepper_motor_driver.h"
+#include "FTL_Sampling.h"
+#include "CE32_COMMAND.h"
+#include "CE32_UART_INTERCOM.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-
+extern CE32_stepMotor motor[4];
+extern FTL_sampling sampler;
+extern CE32_INTERCOM_Handle hCOMM;
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -56,9 +62,10 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern PCD_HandleTypeDef hpcd_USB_FS;
+extern TIM_HandleTypeDef htim16;
+extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
-
+extern ADC_HandleTypeDef hadc1;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -198,17 +205,43 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles USB low priority or CAN_RX0 interrupts.
+  * @brief This function handles TIM1 update and TIM16 interrupts.
   */
-void USB_LP_CAN_RX0_IRQHandler(void)
+void TIM1_UP_TIM16_IRQHandler(void)
 {
-  /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 0 */
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
 
-  /* USER CODE END USB_LP_CAN_RX0_IRQn 0 */
-  HAL_PCD_IRQHandler(&hpcd_USB_FS);
-  /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 1 */
+  /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim16);
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
+  HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
+  HAL_ADC_Start(&hadc1);
+  HAL_ADC_PollForConversion(&hadc1, 10);
+  int resp=FTL_Sampling_Input(&sampler,HAL_ADC_GetValue(&hadc1));
+  if(resp==-1)
+  {
+	  HAL_TIM_Base_Start_IT(&htim16);
+  }
+  if(resp==1)
+  {
+	  HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
+  }
 
-  /* USER CODE END USB_LP_CAN_RX0_IRQn 1 */
+  /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART3 global interrupt / USART3 wake-up interrupt through EXTI line 28.
+  */
+void USART3_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART3_IRQn 0 */
+	CE32_INTERCOM_RX_ISR(&hCOMM,1);
+	CE32_INTERCOM_TX_ISR(&hCOMM);
+  /* USER CODE END USART3_IRQn 0 */
+  /* USER CODE BEGIN USART3_IRQn 1 */
+
+  /* USER CODE END USART3_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
