@@ -51,6 +51,7 @@ ADC_HandleTypeDef hadc1;
 RTC_HandleTypeDef hrtc;
 
 TIM_HandleTypeDef htim16;
+TIM_HandleTypeDef htim17;
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
@@ -59,6 +60,7 @@ UART_HandleTypeDef huart3;
 CE32_stepMotor motor[4];
 FTL_sampling sampler;
 CE32_INTERCOM_Handle hCOMM;
+int16_t motor_location[6];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,11 +71,13 @@ static void MX_USART3_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM16_Init(void);
+static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 
 void Motor_init(void);
 int Vector_Control(int16_t *locs,int len);
 int Measure_SendRst(void);
+int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -114,12 +118,14 @@ int main(void)
   MX_ADC1_Init();
   MX_USART1_UART_Init();
   MX_TIM16_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 
 	Motor_init();
 	CE32_INTERCOM_Init(&hCOMM, &huart3);
 	INTERCOM_UART_ENABLE(&hCOMM);
 	INTERCOM_UART_RXIT_ENABLE(&hCOMM);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -140,6 +146,11 @@ int main(void)
 				{
 					Vector_Control((int16_t*)&data_ptr[1],4);
 					Measure_SendRst();
+					break;
+				}
+				case 0xD2:
+				{
+					MatrixScan(*(int16_t*)&data_ptr[1],*(int16_t*)&data_ptr[3],*(int16_t*)&data_ptr[5],*(int16_t*)&data_ptr[7]);
 					break;
 				}
 			}
@@ -198,12 +209,13 @@ void SystemClock_Config(void)
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART3
                               |RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_TIM16
-                              |RCC_PERIPHCLK_ADC12;
+                              |RCC_PERIPHCLK_TIM17|RCC_PERIPHCLK_ADC12;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   PeriphClkInit.Tim16ClockSelection = RCC_TIM16CLK_HCLK;
+  PeriphClkInit.Tim17ClockSelection = RCC_TIM17CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -336,6 +348,38 @@ static void MX_TIM16_Init(void)
   /* USER CODE BEGIN TIM16_Init 2 */
 
   /* USER CODE END TIM16_Init 2 */
+
+}
+
+/**
+  * @brief TIM17 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM17_Init(void)
+{
+
+  /* USER CODE BEGIN TIM17_Init 0 */
+
+  /* USER CODE END TIM17_Init 0 */
+
+  /* USER CODE BEGIN TIM17_Init 1 */
+
+  /* USER CODE END TIM17_Init 1 */
+  htim17.Instance = TIM17;
+  htim17.Init.Prescaler = 7199;
+  htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim17.Init.Period = 0;
+  htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim17.Init.RepetitionCounter = 0;
+  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM17_Init 2 */
+
+  /* USER CODE END TIM17_Init 2 */
 
 }
 
@@ -531,10 +575,10 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void Motor_init(void)
 {
-	int OnPeriod=1;
+	int OnPeriod=10;
 	int PostPeriod=1;
 	float step_angle=5.625/64;
-	float distPerDeg=50.0/360;
+	float distPerDeg=500.0/360;
 	CE32_stepMotor_InitStruct init;
 	init.Port_0=A0_GPIO_Port;
 	init.Pin_0=A0_Pin;
@@ -560,7 +604,7 @@ void Motor_init(void)
 	init.Port_3=B3_GPIO_Port;
 	init.Pin_3=B3_Pin;
 	init.Init_Pos=0;
-	CE32_stepMotor_Init(&motor[1],&init);
+	CE32_stepMotor_Init(&motor[2],&init);
 
 	init.Port_0=C0_GPIO_Port;
 	init.Pin_0=C0_Pin;
@@ -570,7 +614,7 @@ void Motor_init(void)
 	init.Pin_2=C2_Pin;
 	init.Port_3=C3_GPIO_Port;
 	init.Pin_3=C3_Pin;
-	CE32_stepMotor_Init(&motor[2],&init);
+	CE32_stepMotor_Init(&motor[3],&init);
 
 	init.Port_0=D0_GPIO_Port;
 	init.Pin_0=D0_Pin;
@@ -580,7 +624,7 @@ void Motor_init(void)
 	init.Pin_2=D2_Pin;
 	init.Port_3=D3_GPIO_Port;
 	init.Pin_3=D3_Pin;
-	CE32_stepMotor_Init(&motor[3],&init);
+	CE32_stepMotor_Init(&motor[1],&init);
 }
 
 int Vector_Control(int16_t *locs,int len)
@@ -591,6 +635,7 @@ int Vector_Control(int16_t *locs,int len)
 	{
 		Stepping_To_Distance(&motor[i], locs[i]);
 	}
+	memcpy(motor_location,locs,12);
 	return 0;
 }
 
@@ -600,11 +645,89 @@ int Measure_SendRst(void)
 	HAL_TIM_Base_Start_IT(&htim16);
 	HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
 	while(sampler.state!=0x02);
-	uint8_t TX_cmd[SAMPLE_POINT+2];
+	uint8_t TX_cmd[2*SAMPLE_POINT+12+2];
 	TX_cmd [0]=0x3C;
-	TX_cmd[SAMPLE_POINT+1]=0x3E;
-	memcpy(&TX_cmd[1],sampler.buf,SAMPLE_POINT);
-	CE32_INTERCOM_TX_EnqueueCmd(&hCOMM, TX_cmd, SAMPLE_POINT+2);
+	memcpy(&TX_cmd[1],motor_location,12);
+	memcpy(&TX_cmd[1+12],sampler.buf,2*SAMPLE_POINT);
+	TX_cmd[2*SAMPLE_POINT+12+1]=0x3E;
+	CE32_INTERCOM_TX_EnqueueCmd(&hCOMM, TX_cmd, 2*SAMPLE_POINT+12+2);
+	return 0;
+}
+
+
+int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan)
+{
+	int16_t Initloc[4];
+	int Xstep=Xspan/step;
+	int Ystep=Yspan/step;
+	int Zstep=Zspan/step;
+	
+	memcpy(Initloc,motor_location,4*2);
+//	for(int x=0;x<Xstep;x++)
+//	{
+//		motor_location[0]=Initloc[0]-x*step;;
+//		for(int y=0;y<Ystep;y++)
+//		{
+//			motor_location[1]=Initloc[1]-y*step;
+//			for(int z=0;z<Zstep;z++)
+//			{
+//				motor_location[2]=Initloc[2]-z*step;
+//				Vector_Control(motor_location,3);
+//				Measure_SendRst();
+//			}
+//		}
+//	}
+	for(int x=0;x<=Xstep;x++)
+	{
+		motor_location[0]=Initloc[0]+x*step;;
+		for(int y=0;y<=Ystep;y++)
+		{
+			motor_location[1]=Initloc[1]+y*step;
+			for(int z=0;z<=Zstep;z++)
+			{
+				motor_location[2]=Initloc[2]-z*step;
+				Vector_Control(motor_location,3);
+				Measure_SendRst();
+			}
+			
+			if(++y<=Ystep)
+			{
+				motor_location[1]=Initloc[1]+y*step;
+				for(int z=Zstep;z>=0;z--)
+				{
+					motor_location[2]=Initloc[2]-z*step;
+					Vector_Control(motor_location,3);
+					Measure_SendRst();
+				}
+			}
+		}
+		if(++x<=Xstep)
+		{
+			motor_location[0]=Initloc[0]+x*step;;
+			for(int y=Ystep;y>=0;y--)
+			{
+				motor_location[1]=Initloc[1]+y*step;
+				for(int z=0;z<=Zstep;z++)
+				{
+					motor_location[2]=Initloc[2]-z*step;
+					Vector_Control(motor_location,3);
+					Measure_SendRst();
+				}
+				
+				if(--y>=0)
+				{
+					motor_location[1]=Initloc[1]+y*step;
+					for(int z=Zstep;z>=0;z--)
+					{
+						motor_location[2]=Initloc[2]-z*step;
+						Vector_Control(motor_location,3);
+						Measure_SendRst();
+					}
+				}
+			}
+		}
+	}
+	Vector_Control(Initloc,3); //Return to initial location
 	return 0;
 }
 /* USER CODE END 4 */

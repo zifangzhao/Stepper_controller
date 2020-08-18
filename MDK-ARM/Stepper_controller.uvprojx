@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F303xE</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc; ../Drivers/STM32F3xx_HAL_Driver/Inc; ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy; ../Drivers/CMSIS/Device/ST/STM32F3xx/Include; ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -390,26 +390,8 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>::CMSIS</GroupName>
-        </Group>
-        <Group>
           <GroupName>Application/User/Core</GroupName>
           <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f3xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/stm32f3xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f3xx_hal_msp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/stm32f3xx_hal_msp.c</FilePath>
-            </File>
             <File>
               <FileName>CE32_COMMAND.c</FileName>
               <FileType>1</FileType>
@@ -429,6 +411,21 @@
               <FileName>FTL_Sampling.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Core\Src\FTL_Sampling.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/main.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f3xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/stm32f3xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f3xx_hal_msp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/stm32f3xx_hal_msp.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -551,6 +548,9 @@
               <FilePath>../Core/Src/system_stm32f3xx.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
     </Target>

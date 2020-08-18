@@ -117,7 +117,8 @@ void motor_delay(CE32_stepMotor* x)
 	//TIM_MOTOR->CR1|=(TIM_CR1_CEN);//ticking timer
 	//while((TIM_MOTOR->SR&TIM_SR_UIF)==0){};
 	//TIM_MOTOR->CR1&=~(TIM_CR1_CEN);//close timer
-	HAL_Delay(x->delay);
+	//HAL_Delay(x->delay);
+	custom_delay(x->delay);
 }
 void Stepping(CE32_stepMotor* motor)
 {
@@ -174,4 +175,13 @@ void Stepping(CE32_stepMotor* motor)
 	motor->M_port[3]->BSRR = (uint32_t)(motor->M_pin[3])<<16U;
 	//motor_delay(motor);
 }
-
+#define hTIM htim17
+extern TIM_HandleTypeDef hTIM;
+void custom_delay(int delay)
+{
+	hTIM.Instance->ARR=delay;
+	hTIM.Instance->SR&=~TIM_SR_UIF;
+	HAL_TIM_Base_Start(&hTIM);
+	while((hTIM.Instance->SR&TIM_SR_UIF)==0);
+	HAL_TIM_Base_Stop(&hTIM);
+}

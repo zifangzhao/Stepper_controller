@@ -44,5 +44,5 @@ void Stepping_down(CE32_stepMotor *x);
 void Stepping_up(CE32_stepMotor *x);
 void Stepping(CE32_stepMotor* motor);
 void motor_delay(CE32_stepMotor* motor);
-
+void custom_delay(int delay);
 #endif
