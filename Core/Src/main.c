@@ -658,68 +658,61 @@ int Measure_SendRst(void)
 int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan)
 {
 	int16_t Initloc[4];
-	int Xstep=Xspan/step;
-	int Ystep=Yspan/step;
-	int Zstep=Zspan/step;
+//	int Xstep=Xspan/step;
+//	int Ystep=Yspan/step;
+//	int Zstep=Zspan/step;
 	
 	memcpy(Initloc,motor_location,4*2);
-//	for(int x=0;x<Xstep;x++)
-//	{
-//		motor_location[0]=Initloc[0]-x*step;;
-//		for(int y=0;y<Ystep;y++)
-//		{
-//			motor_location[1]=Initloc[1]-y*step;
-//			for(int z=0;z<Zstep;z++)
-//			{
-//				motor_location[2]=Initloc[2]-z*step;
-//				Vector_Control(motor_location,3);
-//				Measure_SendRst();
-//			}
-//		}
-//	}
-	for(int x=0;x<=Xstep;x++)
+	
+	int ord[3]={2,0,1};
+	int Nstep[3];
+	Nstep[0]=Xspan/step;
+	Nstep[1]=Yspan/step;
+	Nstep[2]=Zspan/step;
+
+	for(int x=0;x<=Nstep[ord[0]];x++)
 	{
-		motor_location[0]=Initloc[0]+x*step;;
-		for(int y=0;y<=Ystep;y++)
+		motor_location[ord[0]]=Initloc[ord[0]]+x*step;;
+		for(int y=0;y<=Nstep[ord[1]];y++)
 		{
-			motor_location[1]=Initloc[1]+y*step;
-			for(int z=0;z<=Zstep;z++)
+			motor_location[ord[1]]=Initloc[ord[1]]+y*step;
+			for(int z=0;z<=Nstep[ord[2]];z++)
 			{
-				motor_location[2]=Initloc[2]-z*step;
+				motor_location[ord[2]]=Initloc[ord[2]]+z*step;
 				Vector_Control(motor_location,3);
 				Measure_SendRst();
 			}
 			
-			if(++y<=Ystep)
+			if(++y<=Nstep[ord[1]])
 			{
-				motor_location[1]=Initloc[1]+y*step;
-				for(int z=Zstep;z>=0;z--)
+				motor_location[ord[1]]=Initloc[ord[1]]+y*step;
+				for(int z=Nstep[ord[2]];z>=0;z--)
 				{
-					motor_location[2]=Initloc[2]-z*step;
+					motor_location[ord[2]]=Initloc[ord[2]]+z*step;
 					Vector_Control(motor_location,3);
 					Measure_SendRst();
 				}
 			}
 		}
-		if(++x<=Xstep)
+		if(++x<=Nstep[ord[0]])
 		{
-			motor_location[0]=Initloc[0]+x*step;;
-			for(int y=Ystep;y>=0;y--)
+			motor_location[ord[0]]=Initloc[ord[0]]+x*step;;
+			for(int y=Nstep[ord[1]];y>=0;y--)
 			{
-				motor_location[1]=Initloc[1]+y*step;
-				for(int z=0;z<=Zstep;z++)
+				motor_location[ord[1]]=Initloc[ord[1]]+y*step;
+				for(int z=0;z<=Nstep[ord[2]];z++)
 				{
-					motor_location[2]=Initloc[2]-z*step;
+					motor_location[ord[2]]=Initloc[ord[2]]+z*step;
 					Vector_Control(motor_location,3);
 					Measure_SendRst();
 				}
 				
 				if(--y>=0)
 				{
-					motor_location[1]=Initloc[1]+y*step;
-					for(int z=Zstep;z>=0;z--)
+					motor_location[ord[1]]=Initloc[ord[1]]+y*step;
+					for(int z=Nstep[ord[2]];z>=0;z--)
 					{
-						motor_location[2]=Initloc[2]-z*step;
+						motor_location[ord[2]]=Initloc[ord[2]]+z*step;
 						Vector_Control(motor_location,3);
 						Measure_SendRst();
 					}

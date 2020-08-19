@@ -3,9 +3,9 @@
 <title>Static Call Graph - [Stepper_controller\Stepper_controller.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Stepper_controller\Stepper_controller.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Tue Aug 18 09:20:30 2020
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Tue Aug 18 17:30:27 2020
 <BR><P>
-<H3>Maximum Stack Usage =       1116 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =       1140 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 main &rArr; MatrixScan &rArr; Measure_SendRst &rArr; CE32_INTERCOM_TX_EnqueueCmd &rArr; CE32_COMMAND_Enqueue_Allocate
 <P>
@@ -939,8 +939,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f303xe.o(RESET)
 </UL>
-<P><STRONG><a name="[af]"></a>MatrixScan</STRONG> (Thumb, 326 bytes, Stack size 48 bytes, main.o(i.MatrixScan))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1100<LI>Call Chain = MatrixScan &rArr; Measure_SendRst &rArr; CE32_INTERCOM_TX_EnqueueCmd &rArr; CE32_COMMAND_Enqueue_Allocate
+<P><STRONG><a name="[af]"></a>MatrixScan</STRONG> (Thumb, 442 bytes, Stack size 72 bytes, main.o(i.MatrixScan))
+<BR><BR>[Stack]<UL><LI>Max Depth = 1124<LI>Call Chain = MatrixScan &rArr; Measure_SendRst &rArr; CE32_INTERCOM_TX_EnqueueCmd &rArr; CE32_COMMAND_Enqueue_Allocate
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Vector_Control
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Measure_SendRst
@@ -1180,7 +1180,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[54]"></a>main</STRONG> (Thumb, 142 bytes, Stack size 16 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 1116<LI>Call Chain = main &rArr; MatrixScan &rArr; Measure_SendRst &rArr; CE32_INTERCOM_TX_EnqueueCmd &rArr; CE32_COMMAND_Enqueue_Allocate
+<BR><BR>[Stack]<UL><LI>Max Depth = 1140<LI>Call Chain = main &rArr; MatrixScan &rArr; Measure_SendRst &rArr; CE32_INTERCOM_TX_EnqueueCmd &rArr; CE32_COMMAND_Enqueue_Allocate
 </UL>
 <BR>[Calls]<UL><LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
 <LI><a href="#[b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Vector_Control
