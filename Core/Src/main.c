@@ -593,7 +593,7 @@ void Motor_init(void)
 	init.On_Period=OnPeriod;
 	init.step_angle=step_angle;
 	init.distPerDegree=distPerDeg;
-	CE32_stepMotor_Init(&motor[0],&init);
+	CE32_stepMotor_Init(&motor[1],&init);
 
 	init.Port_0=B0_GPIO_Port;
 	init.Pin_0=B0_Pin;
@@ -624,7 +624,7 @@ void Motor_init(void)
 	init.Pin_2=D2_Pin;
 	init.Port_3=D3_GPIO_Port;
 	init.Pin_3=D3_Pin;
-	CE32_stepMotor_Init(&motor[1],&init);
+	CE32_stepMotor_Init(&motor[0],&init);
 }
 
 int Vector_Control(int16_t *locs,int len)

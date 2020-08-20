@@ -3,6 +3,7 @@
 #define __STEPPER
 
 #define CE32_STEPPER_PEND	0x0001
+#define CE32_STEPPER_INIT_DELAY 20
 typedef struct{
 	int state;
 	int delay;

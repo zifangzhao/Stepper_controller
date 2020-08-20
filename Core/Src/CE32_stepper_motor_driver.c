@@ -25,16 +25,28 @@ void Motor_SetSpeed(CE32_stepMotor *x,int RPM)
 }
 void Stepping_down_Xstep(CE32_stepMotor *x,long long  steps)
 {
+	int goal_delay=x->delay;
+	int current_delay=CE32_STEPPER_INIT_DELAY;
 	for(long long  i=0;i<steps;i++){
 		Stepping_down(x);
+		if(current_delay>goal_delay)
+			current_delay--;
+			x->delay=current_delay;
 	};
+	x->delay=goal_delay;
 }
 
 void Stepping_up_Xstep(CE32_stepMotor *x,long long  steps)
 {
+	int goal_delay=x->delay;
+	int current_delay=CE32_STEPPER_INIT_DELAY;
 	for(long long  i=0;i<steps;i++){
 		Stepping_up(x);
+		if(current_delay>goal_delay)
+			current_delay--;
+			x->delay=current_delay;
 	};
+	x->delay=goal_delay;
 }
 
 void Stepping_down_Degree(CE32_stepMotor *x,uint32_t degree)
