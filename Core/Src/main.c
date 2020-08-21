@@ -61,6 +61,7 @@ CE32_stepMotor motor[4];
 FTL_sampling sampler;
 CE32_INTERCOM_Handle hCOMM;
 int16_t motor_location[6];
+int measure_state=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,7 +78,8 @@ static void MX_TIM17_Init(void);
 void Motor_init(void);
 int Vector_Control(int16_t *locs,int len);
 int Measure_SendRst(void);
-int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan);
+int MatrixScan(int16_t step,int16_t Xbase,int16_t Ybase,int16_t Zbase, int16_t Xspan,int16_t Yspan,int16_t Zspan);
+void cmd_svr(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -125,7 +127,7 @@ int main(void)
 	CE32_INTERCOM_Init(&hCOMM, &huart3);
 	INTERCOM_UART_ENABLE(&hCOMM);
 	INTERCOM_UART_RXIT_ENABLE(&hCOMM);
-
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -136,25 +138,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 		//Command Processing services
-		uint8_t *data_ptr;
-		uint32_t cmd_len;
-		if(CE32_INTERCOM_RX_DequeueCmd(&hCOMM,&data_ptr,&cmd_len)==0)
-		{
-			switch(data_ptr[0])
-			{
-				case 0xD1:
-				{
-					Vector_Control((int16_t*)&data_ptr[1],4);
-					Measure_SendRst();
-					break;
-				}
-				case 0xD2:
-				{
-					MatrixScan(*(int16_t*)&data_ptr[1],*(int16_t*)&data_ptr[3],*(int16_t*)&data_ptr[5],*(int16_t*)&data_ptr[7]);
-					break;
-				}
-			}
-		}
+		cmd_svr();
 	}
 	//	Stepping_down_Distance(&motor[0], 50);
 	//	Stepping_down_Distance(&motor[1], 50);
@@ -369,10 +353,10 @@ static void MX_TIM17_Init(void)
   htim17.Instance = TIM17;
   htim17.Init.Prescaler = 7199;
   htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim17.Init.Period = 0;
+  htim17.Init.Period = 10;
   htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim17.Init.RepetitionCounter = 0;
-  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
   {
     Error_Handler();
@@ -629,12 +613,16 @@ void Motor_init(void)
 
 int Vector_Control(int16_t *locs,int len)
 {
+	cmd_svr();
 	if(len>4)
 		len=4;
 	for(int i=0;i<len;i++)
 	{
 		Stepping_To_Distance(&motor[i], locs[i]);
 	}
+	HAL_TIM_Base_Start_IT(&htim17); //Start motor ticking timer
+	while(Stepping_CheckState(&motor[0])|Stepping_CheckState(&motor[1])|Stepping_CheckState(&motor[2])|Stepping_CheckState(&motor[3])!=0);//Wait all motor move to target location
+	HAL_TIM_Base_Stop_IT(&htim17);
 	memcpy(motor_location,locs,12);
 	return 0;
 }
@@ -655,14 +643,15 @@ int Measure_SendRst(void)
 }
 
 
-int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan)
+int MatrixScan(int16_t step,int16_t Xbase,int16_t Ybase,int16_t Zbase, int16_t Xspan,int16_t Yspan,int16_t Zspan)
 {
 	int16_t Initloc[4];
-//	int Xstep=Xspan/step;
-//	int Ystep=Yspan/step;
-//	int Zstep=Zspan/step;
+	int16_t Originloc[4];
 	
-	memcpy(Initloc,motor_location,4*2);
+	memcpy(Originloc,motor_location,4*2);
+	Initloc[0]=Originloc[0]+Xbase;
+	Initloc[1]=Originloc[1]+Ybase;
+	Initloc[2]=Originloc[2]+Zbase;
 	
 	int ord[3]={2,0,1};
 	int Nstep[3];
@@ -681,6 +670,8 @@ int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan)
 				motor_location[ord[2]]=Initloc[ord[2]]+z*step;
 				Vector_Control(motor_location,3);
 				Measure_SendRst();
+				if(measure_state==0)
+					return -1;
 			}
 			
 			if(++y<=Nstep[ord[1]])
@@ -691,6 +682,8 @@ int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan)
 					motor_location[ord[2]]=Initloc[ord[2]]+z*step;
 					Vector_Control(motor_location,3);
 					Measure_SendRst();
+					if(measure_state==0)
+						return -1;
 				}
 			}
 		}
@@ -705,6 +698,8 @@ int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan)
 					motor_location[ord[2]]=Initloc[ord[2]]+z*step;
 					Vector_Control(motor_location,3);
 					Measure_SendRst();
+					if(measure_state==0)
+							return -1;
 				}
 				
 				if(--y>=0)
@@ -715,13 +710,45 @@ int MatrixScan(int16_t step,int16_t Xspan,int16_t Yspan,int16_t Zspan)
 						motor_location[ord[2]]=Initloc[ord[2]]+z*step;
 						Vector_Control(motor_location,3);
 						Measure_SendRst();
+						if(measure_state==0)
+							return -1;
 					}
 				}
 			}
 		}
 	}
-	Vector_Control(Initloc,3); //Return to initial location
+	Vector_Control(Originloc,3); //Return to initial location
 	return 0;
+}
+
+void cmd_svr(void)
+{
+	uint8_t *data_ptr;
+	uint32_t cmd_len;
+	if(CE32_INTERCOM_RX_DequeueCmd(&hCOMM,&data_ptr,&cmd_len)==0)
+	{
+		switch(data_ptr[0])
+		{
+			case 0xD1:
+			{
+				Vector_Control((int16_t*)&data_ptr[1],4);
+				Measure_SendRst();
+				break;
+			}
+			case 0xD2:
+			{
+				int16_t *data=(int16_t*)&data_ptr[1];
+				measure_state=1; //Setup measurement flag
+				MatrixScan(data[0],data[1],data[2],data[3],data[4],data[5],data[6]);
+				break;
+			}
+			case 0xD3:
+			{
+				measure_state=0;//Send stop measurement flag
+				break;
+			}
+		}
+	}
 }
 /* USER CODE END 4 */
 

@@ -14,6 +14,7 @@ void CE32_stepMotor_Init(CE32_stepMotor *x, CE32_stepMotor_InitStruct *init)
 	x->distPerDegree=init->distPerDegree;
 	x->delay=init->On_Period;
 	x->Pos_delay=init->Int_Period;
+	x->target_step=0;
 	x->current_beat=0;
 	x->step_cnt=0;
 }
@@ -49,15 +50,34 @@ void Stepping_up_Xstep(CE32_stepMotor *x,long long  steps)
 	x->delay=goal_delay;
 }
 
+void Stepping_down_Xstep_IT(CE32_stepMotor *x,long long  steps)
+{
+	x->target_step-=steps;
+	if(steps!=0)
+		x->state|=CE32_STEPPER_STATE_ACTIVE;
+}
+
+void Stepping_up_Xstep_IT(CE32_stepMotor *x,long long  steps)
+{
+	x->target_step+=steps;
+		if(steps!=0)
+		x->state|=CE32_STEPPER_STATE_ACTIVE;
+}
+
+int Stepping_CheckState(CE32_stepMotor *x)
+{
+	return (x->state&CE32_STEPPER_STATE_ACTIVE)!=0;
+}
+
 void Stepping_down_Degree(CE32_stepMotor *x,uint32_t degree)
 {
 	int steps=degree/x->step_angle;
-	Stepping_down_Xstep(x,steps);
+	Stepping_down_Xstep_IT(x,steps);
 }
 void Stepping_up_Degree(CE32_stepMotor *x,uint32_t degree)
 {
 	int steps=degree/x->step_angle;
-	Stepping_up_Xstep(x,steps);
+	Stepping_up_Xstep_IT(x,steps);
 }
 
 void Stepping_down_Distance(CE32_stepMotor *x,uint32_t distance)
@@ -73,14 +93,14 @@ void Stepping_up_Distance(CE32_stepMotor *x,uint32_t distance)
 
 void Stepping_To_Step(CE32_stepMotor *x,long long  step)
 {
-	long long  n_step=step-x->step_cnt;
+	long long  n_step=x->step_cnt-step;
 	if(n_step>0)
 	{
-		Stepping_down_Xstep(x, n_step);
+		Stepping_down_Xstep_IT(x, n_step);
 	}
 	else
 	{
-		Stepping_up_Xstep(x, -n_step);
+		Stepping_up_Xstep_IT(x, -n_step);
 	}
 }
 
@@ -118,6 +138,29 @@ void Stepping_up(CE32_stepMotor* x)
 	Stepping(x);
 }
 
+int Stepping_to_goal(CE32_stepMotor *x)
+{
+	if(x->target_step==x->step_cnt)
+	{
+		x->M_port[0]->BSRR = (uint32_t)(x->M_pin[0])<<16U;
+		x->M_port[1]->BSRR = (uint32_t)(x->M_pin[1])<<16U;
+		x->M_port[2]->BSRR = (uint32_t)(x->M_pin[2])<<16U;
+		x->M_port[3]->BSRR = (uint32_t)(x->M_pin[3])<<16U;
+		x->state&=~CE32_STEPPER_STATE_ACTIVE;
+		return -1;
+	}
+	if(x->target_step<x->step_cnt)
+	{
+		Stepping_up(x);
+	}
+	else
+	{
+		Stepping_down(x);
+	}
+	Stepping(x);
+	return 0;
+}
+
 void motor_delay(CE32_stepMotor* x)
 {
 	//HAL_TIM_Base_Start_IT
@@ -130,10 +173,14 @@ void motor_delay(CE32_stepMotor* x)
 	//while((TIM_MOTOR->SR&TIM_SR_UIF)==0){};
 	//TIM_MOTOR->CR1&=~(TIM_CR1_CEN);//close timer
 	//HAL_Delay(x->delay);
-	custom_delay(x->delay);
+	//custom_delay(x->delay);
 }
 void Stepping(CE32_stepMotor* motor)
 {
+		motor->M_port[0]->BSRR = (uint32_t)(motor->M_pin[0])<<16U;
+		motor->M_port[1]->BSRR = (uint32_t)(motor->M_pin[1])<<16U;
+		motor->M_port[2]->BSRR = (uint32_t)(motor->M_pin[2])<<16U;
+		motor->M_port[3]->BSRR = (uint32_t)(motor->M_pin[3])<<16U;
 	switch(motor->current_beat){
 	case 0:{
 		motor->M_port[0]->BSRR = motor->M_pin[0];
@@ -181,10 +228,10 @@ void Stepping(CE32_stepMotor* motor)
 	};
 	}
 
-	motor->M_port[0]->BSRR = (uint32_t)(motor->M_pin[0])<<16U;
-	motor->M_port[1]->BSRR = (uint32_t)(motor->M_pin[1])<<16U;
-	motor->M_port[2]->BSRR = (uint32_t)(motor->M_pin[2])<<16U;
-	motor->M_port[3]->BSRR = (uint32_t)(motor->M_pin[3])<<16U;
+//	motor->M_port[0]->BSRR = (uint32_t)(motor->M_pin[0])<<16U;
+//	motor->M_port[1]->BSRR = (uint32_t)(motor->M_pin[1])<<16U;
+//	motor->M_port[2]->BSRR = (uint32_t)(motor->M_pin[2])<<16U;
+//	motor->M_port[3]->BSRR = (uint32_t)(motor->M_pin[3])<<16U;
 	//motor_delay(motor);
 }
 #define hTIM htim17

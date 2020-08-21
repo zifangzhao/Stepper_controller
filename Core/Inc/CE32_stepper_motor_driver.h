@@ -4,6 +4,8 @@
 
 #define CE32_STEPPER_PEND	0x0001
 #define CE32_STEPPER_INIT_DELAY 20
+
+#define CE32_STEPPER_STATE_ACTIVE 0x01
 typedef struct{
 	int state;
 	int delay;
@@ -34,6 +36,9 @@ void CE32_stepMotor_Init(CE32_stepMotor *x, CE32_stepMotor_InitStruct *init);
 void Motor_SetSpeed(CE32_stepMotor *x,int RPM);
 void Stepping_down_Xstep(CE32_stepMotor *x,long long  steps);
 void Stepping_up_Xstep(CE32_stepMotor *x,long long  steps);
+void Stepping_down_Xstep_IT(CE32_stepMotor *x,long long  steps);
+void Stepping_up_Xstep_IT(CE32_stepMotor *x,long long  steps);
+int  Stepping_CheckState(CE32_stepMotor *x);
 void Stepping_down_Degree(CE32_stepMotor *x,uint32_t degree);
 void Stepping_up_Degree(CE32_stepMotor *x,uint32_t degree);
 void Stepping_down_Distance(CE32_stepMotor *x,uint32_t distance);
@@ -43,6 +48,7 @@ void Stepping_To_Degree(CE32_stepMotor *x,long long  degree);
 void Stepping_To_Distance(CE32_stepMotor *x,long long  distance);
 void Stepping_down(CE32_stepMotor *x);
 void Stepping_up(CE32_stepMotor *x);
+int Stepping_to_goal(CE32_stepMotor *x);
 void Stepping(CE32_stepMotor* motor);
 void motor_delay(CE32_stepMotor* motor);
 void custom_delay(int delay);

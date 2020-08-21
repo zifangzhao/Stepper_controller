@@ -237,10 +237,15 @@ void TIM1_UP_TIM16_IRQHandler(void)
 void TIM1_TRG_COM_TIM17_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
-
+	TIM17->SR&=~TIM_SR_UIF;
   /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim17);
+  //HAL_TIM_IRQHandler(&htim17);
   /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 1 */
+	Stepping_to_goal(&motor[0]);
+	Stepping_to_goal(&motor[1]);
+	Stepping_to_goal(&motor[2]);
+	Stepping_to_goal(&motor[3]);
+//	Stepping_to_goal(&motor[4]);
 
   /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 1 */
 }

@@ -39,8 +39,8 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5E7FFE55)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5CEC22A2)
-F (..\Core\Src\CE32_stepper_motor_driver.c)(0x5F3D6CD3)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\ce32_stepper_motor_driver.o --omf_browse stepper_controller\ce32_stepper_motor_driver.crf --depend stepper_controller\ce32_stepper_motor_driver.d)
-I (../Core/Inc/CE32_stepper_motor_driver.h)(0x5F3D6C0F)
+F (..\Core\Src\CE32_stepper_motor_driver.c)(0x5F3ED444)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\ce32_stepper_motor_driver.o --omf_browse stepper_controller\ce32_stepper_motor_driver.crf --depend stepper_controller\ce32_stepper_motor_driver.d)
+I (../Core/Inc/CE32_stepper_motor_driver.h)(0x5F3EC7D3)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5E7FFE55)
 I (../Core/Inc/stm32f3xx_hal_conf.h)(0x5F3ABD40)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_rcc.h)(0x5E7FFE55)
@@ -76,7 +76,7 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5E7FFE55)
-F (..\Core\Src\CE32_UART_INTERCOM.c)(0x5F39C59C)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\ce32_uart_intercom.o --omf_browse stepper_controller\ce32_uart_intercom.crf --depend stepper_controller\ce32_uart_intercom.d)
+F (..\Core\Src\CE32_UART_INTERCOM.c)(0x5F3EA92D)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\ce32_uart_intercom.o --omf_browse stepper_controller\ce32_uart_intercom.crf --depend stepper_controller\ce32_uart_intercom.d)
 I (../Core/Inc/CE32_UART_INTERCOM.h)(0x5F39987D)
 I (../Core/Inc/CE32_macro.h)(0x5F382CA7)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5E7FFE55)
@@ -153,7 +153,7 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5E7FFE55)
-F (../Core/Src/main.c)(0x5F3E74E9)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\main.o --omf_browse stepper_controller\main.crf --depend stepper_controller\main.d)
+F (../Core/Src/main.c)(0x5F3EF892)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\main.o --omf_browse stepper_controller\main.crf --depend stepper_controller\main.d)
 I (../Core/Inc/main.h)(0x5F3ABD40)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5E7FFE55)
 I (../Core/Inc/stm32f3xx_hal_conf.h)(0x5F3ABD40)
@@ -190,13 +190,13 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5E7FFE55)
-I (../Core/Inc/CE32_stepper_motor_driver.h)(0x5F3D6C0F)
+I (../Core/Inc/CE32_stepper_motor_driver.h)(0x5F3EC7D3)
 I (../Core/Inc/FTL_Sampling.h)(0x5F384AB6)
 I (../Core/Inc/CE32_COMMAND.h)(0x5F39BB9F)
 I (../Core/Inc/CE32_macro.h)(0x5F382CA7)
 I (../Core/Inc/CE32_UART_INTERCOM.h)(0x5F39987D)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x5CEC22A2)
-F (../Core/Src/stm32f3xx_it.c)(0x5F3ABD40)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\stm32f3xx_it.o --omf_browse stepper_controller\stm32f3xx_it.crf --depend stepper_controller\stm32f3xx_it.d)
+F (../Core/Src/stm32f3xx_it.c)(0x5F3EF81F)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\stm32f3xx_it.o --omf_browse stepper_controller\stm32f3xx_it.crf --depend stepper_controller\stm32f3xx_it.d)
 I (../Core/Inc/main.h)(0x5F3ABD40)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5E7FFE55)
 I (../Core/Inc/stm32f3xx_hal_conf.h)(0x5F3ABD40)
@@ -234,12 +234,12 @@ I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart.h)(0x5E7FFE55)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h)(0x5E7FFE55)
 I (../Core/Inc/stm32f3xx_it.h)(0x5F3ABD40)
-I (../Core/Inc/CE32_stepper_motor_driver.h)(0x5F3D6C0F)
+I (../Core/Inc/CE32_stepper_motor_driver.h)(0x5F3EC7D3)
 I (../Core/Inc/FTL_Sampling.h)(0x5F384AB6)
 I (../Core/Inc/CE32_COMMAND.h)(0x5F39BB9F)
 I (../Core/Inc/CE32_macro.h)(0x5F382CA7)
 I (../Core/Inc/CE32_UART_INTERCOM.h)(0x5F39987D)
-F (../Core/Src/stm32f3xx_hal_msp.c)(0x5F3ABD40)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\stm32f3xx_hal_msp.o --omf_browse stepper_controller\stm32f3xx_hal_msp.crf --depend stepper_controller\stm32f3xx_hal_msp.d)
+F (../Core/Src/stm32f3xx_hal_msp.c)(0x5F3EF77F)(--c99 -c --cpu Cortex-M4.fp -D__MICROLIB -g -O1 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc -I ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F3xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_Stepper_controller-IC:\Users\aeria\AppData\Local\Arm\Packs\ARM\CMSIS\5.7.0\CMSIS\Core\Include-IC:\Users\aeria\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F3xx\Include-D__UVISION_VERSION="528" -D_RTE_ -DSTM32F303xE -DUSE_HAL_DRIVER -DSTM32F303xE-o stepper_controller\stm32f3xx_hal_msp.o --omf_browse stepper_controller\stm32f3xx_hal_msp.crf --depend stepper_controller\stm32f3xx_hal_msp.d)
 I (../Core/Inc/main.h)(0x5F3ABD40)
 I (../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h)(0x5E7FFE55)
 I (../Core/Inc/stm32f3xx_hal_conf.h)(0x5F3ABD40)
