@@ -225,7 +225,11 @@ void TIM1_UP_TIM16_IRQHandler(void)
   }
   if(resp==1)
   {
-	  HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
+		htim16.Instance->CR1&=~TIM_CR1_CEN;//Disable timer
+	  HAL_Delay(100);//Delay to make sure it always triggers
+		HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
+		
+		htim16.Instance->CR1|=TIM_CR1_CEN;//Disable timer
   }
 
   /* USER CODE END TIM1_UP_TIM16_IRQn 1 */

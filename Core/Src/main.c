@@ -79,6 +79,7 @@ void Motor_init(void);
 int Vector_Control(int16_t *locs,int len);
 int Measure_SendRst(void);
 int MatrixScan(int16_t step,int16_t Xbase,int16_t Ybase,int16_t Zbase, int16_t Xspan,int16_t Yspan,int16_t Zspan);
+int DepthScan(int16_t step,int16_t Xbase,int16_t Ybase,int16_t Zbase, int16_t Xspan,int16_t Yspan,int16_t Zspan);
 void cmd_svr(void);
 /* USER CODE END PFP */
 
@@ -721,6 +722,54 @@ int MatrixScan(int16_t step,int16_t Xbase,int16_t Ybase,int16_t Zbase, int16_t X
 	return 0;
 }
 
+int DepthScan(int16_t step,int16_t Xbase,int16_t Ybase,int16_t Zbase, int16_t Xspan,int16_t Yspan,int16_t Zspan)
+{
+	int16_t Initloc[4];
+	int16_t Originloc[4];
+	
+	memcpy(Originloc,motor_location,4*2);
+	Initloc[0]=Originloc[0]+Xbase;
+	Initloc[1]=Originloc[1]+Ybase;
+	Initloc[2]=Originloc[2]+Zbase;
+	
+	int ord[3]={0,1,2};
+	int Nstep[3];
+	Nstep[0]=Xspan/step;
+	Nstep[1]=Yspan/step;
+	Nstep[2]=Zspan/step;
+
+	
+	for(int y=0;y<=Nstep[ord[1]];y++)
+	{
+		motor_location[ord[0]]=Initloc[ord[0]]-y*step;;
+		motor_location[ord[1]]=Initloc[ord[1]]-y*step;
+		for(int z=0;z<=Nstep[ord[2]];z++)
+		{
+			motor_location[ord[2]]=Initloc[ord[2]]+z*step;
+			Vector_Control(motor_location,3);
+			Measure_SendRst();
+			if(measure_state==0)
+				return -1;
+		}
+		
+		if(++y<=Nstep[ord[1]])
+		{
+			motor_location[ord[0]]=Initloc[ord[0]]-y*step;;
+			motor_location[ord[1]]=Initloc[ord[1]]-y*step;
+			for(int z=Nstep[ord[2]];z>=0;z--)
+			{
+				motor_location[ord[2]]=Initloc[ord[2]]+z*step;
+				Vector_Control(motor_location,3);
+				Measure_SendRst();
+				if(measure_state==0)
+					return -1;
+			}
+		}
+	}
+	Vector_Control(Originloc,3); //Return to initial location
+	return 0;
+}
+
 void cmd_svr(void)
 {
 	uint8_t *data_ptr;
@@ -745,6 +794,13 @@ void cmd_svr(void)
 			case 0xD3:
 			{
 				measure_state=0;//Send stop measurement flag
+				break;
+			}
+			case 0xD4:
+			{
+				int16_t *data=(int16_t*)&data_ptr[1];
+				measure_state=1; //Setup measurement flag
+				DepthScan(data[0],data[1],data[2],data[3],data[4],data[5],data[6]);
 				break;
 			}
 		}

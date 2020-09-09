@@ -209,6 +209,9 @@ int CE32_INTERCOM_Incoming_CMD_Len(int index,int role)
 		case 0xD3:
 			resp=1;
 			break;
+		case 0xD4:
+			resp=2*(1+3+3)+1;
+			break;
 		case 0xF0: //LPF test
 			resp=513;
 			break;
