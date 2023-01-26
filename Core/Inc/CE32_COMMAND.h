@@ -5,8 +5,8 @@
 
 #define __CE32_COMMAND
 
-#define CMD_SEQ 8
-#define CMD_MAXSIZE 2048
+#define CMD_SEQ 2
+#define CMD_MAXSIZE 8192
 #define CMD_BUFSIZE CMD_MAXSIZE*CMD_SEQ
 /*
 INTERCOM class for handling data communication between Ephys boards

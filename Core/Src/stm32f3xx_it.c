@@ -62,6 +62,7 @@ extern CE32_INTERCOM_Handle hCOMM;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_adc1;
 extern TIM_HandleTypeDef htim16;
 extern TIM_HandleTypeDef htim17;
 extern UART_HandleTypeDef huart3;
@@ -206,6 +207,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 channel1 global interrupt.
+  */
+void DMA1_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM1 update and TIM16 interrupts.
   */
 void TIM1_UP_TIM16_IRQHandler(void)
@@ -216,12 +231,16 @@ void TIM1_UP_TIM16_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim16);
   /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
   HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_RESET);
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 10);
-  int resp=FTL_Sampling_Input(&sampler,HAL_ADC_GetValue(&hadc1));
+	int resp;
+
+  HAL_ADCEx_InjectedStart(&hadc1);
+	HAL_ADCEx_InjectedPollForConversion(&hadc1,100);
+  resp=FTL_Sampling_Input(&sampler,hadc1.Instance->JDR1);
+	resp=FTL_Sampling_Input(&sampler,hadc1.Instance->JDR2);
+	resp=FTL_Sampling_Input(&sampler,hadc1.Instance->JDR3);
   if(resp==-1)
   {
-	  HAL_TIM_Base_Start_IT(&htim16);
+	  HAL_TIM_Base_Stop_IT(&htim16);
   }
   if(resp==1)
   {
@@ -229,7 +248,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
 	  HAL_Delay(100);//Delay to make sure it always triggers
 		HAL_GPIO_WritePin(TRIG_GPIO_Port, TRIG_Pin, GPIO_PIN_SET);
 		
-		htim16.Instance->CR1|=TIM_CR1_CEN;//Disable timer
+		htim16.Instance->CR1|=TIM_CR1_CEN;//Enable timer
   }
 
   /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
@@ -243,7 +262,6 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
   /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
 	TIM17->SR&=~TIM_SR_UIF;
   /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 0 */
-  //HAL_TIM_IRQHandler(&htim17);
   /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 1 */
 	Stepping_to_goal(&motor[0]);
 	Stepping_to_goal(&motor[1]);

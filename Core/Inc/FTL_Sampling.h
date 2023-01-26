@@ -8,7 +8,7 @@
 #ifndef INC_FTL_SAMPLING_H_
 #define INC_FTL_SAMPLING_H_
 #include "stm32f3xx_hal.h"
-#define SAMPLE_POINT 500
+#define SAMPLE_POINT 1500
 
 #define FTL_SAMPLE_STATE_BUSY 0x01
 #define FTL_SAMPLE_STATE_FINISH	0x02

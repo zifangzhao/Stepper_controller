@@ -28,7 +28,7 @@ int FTL_Sampling_Input(FTL_sampling *obj,uint16_t data)
 		return -1;
 	}
 	obj->state=FTL_SAMPLE_STATE_BUSY;
-	obj->buf[obj->data_ptr++]=data/obj->cycles;
+	obj->buf[obj->data_ptr++]+=data/obj->cycles;
 	if(obj->data_ptr>=obj->data_size)
 	{
 		obj->data_ptr=0;
