@@ -5,3 +5,7 @@
 *.su
 *.map
 Debug/makefile
+*.sct
+*.dep
+*.crf
+*.o
