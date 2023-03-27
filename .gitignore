@@ -9,3 +9,5 @@ Debug/makefile
 *.dep
 *.crf
 *.o
+*.lst
+*.s

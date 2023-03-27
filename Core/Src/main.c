@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -28,7 +29,7 @@
 #include "CE32_COMMAND.h"
 #include "CE32_UART_INTERCOM.h"
 #include "string.h"
-
+#include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,8 +126,9 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM16_Init();
   MX_TIM17_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-
+	HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port,USB_PowerSwitchOn_Pin,1);
 	Motor_init();
 	HAL_ADCEx_Calibration_Start(&hadc1,ADC_SINGLE_ENDED);
 	CE32_INTERCOM_Init(&hCOMM, &huart3);
@@ -169,7 +171,7 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
@@ -183,7 +185,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -196,13 +198,15 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART3
-                              |RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_TIM16
-                              |RCC_PERIPHCLK_TIM17|RCC_PERIPHCLK_ADC12;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_USART1
+                              |RCC_PERIPHCLK_USART3|RCC_PERIPHCLK_RTC
+                              |RCC_PERIPHCLK_TIM16|RCC_PERIPHCLK_TIM17
+                              |RCC_PERIPHCLK_ADC12;
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   PeriphClkInit.Tim16ClockSelection = RCC_TIM16CLK_HCLK;
   PeriphClkInit.Tim17ClockSelection = RCC_TIM17CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -230,7 +234,7 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 1 */
 
   /* USER CODE END ADC1_Init 1 */
-  /** Common config 
+  /** Common config
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
@@ -251,14 +255,14 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure the ADC multi-mode 
+  /** Configure the ADC multi-mode
   */
   multimode.Mode = ADC_MODE_INDEPENDENT;
   if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel 
+  /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = ADC_REGULAR_RANK_1;
@@ -270,7 +274,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel 
+  /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_2;
@@ -278,7 +282,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel 
+  /** Configure Regular Channel
   */
   sConfig.Channel = ADC_CHANNEL_4;
   sConfig.Rank = ADC_REGULAR_RANK_3;
@@ -286,7 +290,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Injected Channel 
+  /** Configure Injected Channel
   */
   sConfigInjected.InjectedChannel = ADC_CHANNEL_1;
   sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
@@ -304,7 +308,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Injected Channel 
+  /** Configure Injected Channel
   */
   sConfigInjected.InjectedChannel = ADC_CHANNEL_3;
   sConfigInjected.InjectedRank = ADC_INJECTED_RANK_2;
@@ -312,7 +316,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Injected Channel 
+  /** Configure Injected Channel
   */
   sConfigInjected.InjectedChannel = ADC_CHANNEL_4;
   sConfigInjected.InjectedRank = ADC_INJECTED_RANK_3;
@@ -341,7 +345,7 @@ static void MX_RTC_Init(void)
   /* USER CODE BEGIN RTC_Init 1 */
 
   /* USER CODE END RTC_Init 1 */
-  /** Initialize RTC Only 
+  /** Initialize RTC Only
   */
   hrtc.Instance = RTC;
   hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
@@ -381,7 +385,7 @@ static void MX_TIM16_Init(void)
   htim16.Init.Period = 999;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
-  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
   {
     Error_Handler();
@@ -498,10 +502,10 @@ static void MX_USART3_UART_Init(void)
 
 }
 
-/** 
+/**
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void) 
+static void MX_DMA_Init(void)
 {
 
   /* DMA controller clock enable */
@@ -548,11 +552,11 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(BLE_PWR_GPIO_Port, BLE_PWR_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, B0_Pin|C0_Pin|USB_PowerSwitchOn_Pin|D2_Pin 
+  HAL_GPIO_WritePin(GPIOG, B0_Pin|C0_Pin|USB_PowerSwitchOn_Pin|D2_Pin
                           |D0_Pin|D3_Pin|D1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, B1_Pin|B2_Pin|B3_Pin|C1_Pin 
+  HAL_GPIO_WritePin(GPIOD, B1_Pin|B2_Pin|B3_Pin|C1_Pin
                           |C2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : C3_Pin */
@@ -596,9 +600,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : B0_Pin C0_Pin D2_Pin D0_Pin 
+  /*Configure GPIO pins : B0_Pin C0_Pin D2_Pin D0_Pin
                            D3_Pin D1_Pin */
-  GPIO_InitStruct.Pin = B0_Pin|C0_Pin|D2_Pin|D0_Pin 
+  GPIO_InitStruct.Pin = B0_Pin|C0_Pin|D2_Pin|D0_Pin
                           |D3_Pin|D1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -618,9 +622,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(USB_OverCurrent_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : B1_Pin B2_Pin B3_Pin C1_Pin 
+  /*Configure GPIO pins : B1_Pin B2_Pin B3_Pin C1_Pin
                            C2_Pin */
-  GPIO_InitStruct.Pin = B1_Pin|B2_Pin|B3_Pin|C1_Pin 
+  GPIO_InitStruct.Pin = B1_Pin|B2_Pin|B3_Pin|C1_Pin
                           |C2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -650,7 +654,7 @@ void Motor_init(void)
 	init.On_Period=OnPeriod;
 	init.step_angle=step_angle;
 	init.distPerDegree=distPerDeg;
-	CE32_stepMotor_Init(&motor[1],&init);
+	CE32_stepMotor_Init(&motor[2],&init);
 
 	init.Port_0=B0_GPIO_Port;
 	init.Pin_0=B0_Pin;
@@ -661,7 +665,7 @@ void Motor_init(void)
 	init.Port_3=B3_GPIO_Port;
 	init.Pin_3=B3_Pin;
 	init.Init_Pos=0;
-	CE32_stepMotor_Init(&motor[2],&init);
+	CE32_stepMotor_Init(&motor[1],&init);
 
 	init.Port_0=C0_GPIO_Port;
 	init.Pin_0=C0_Pin;
@@ -671,7 +675,7 @@ void Motor_init(void)
 	init.Pin_2=C2_Pin;
 	init.Port_3=C3_GPIO_Port;
 	init.Pin_3=C3_Pin;
-	CE32_stepMotor_Init(&motor[3],&init);
+	CE32_stepMotor_Init(&motor[0],&init);
 
 	init.Port_0=D0_GPIO_Port;
 	init.Pin_0=D0_Pin;
@@ -681,7 +685,7 @@ void Motor_init(void)
 	init.Pin_2=D2_Pin;
 	init.Port_3=D3_GPIO_Port;
 	init.Pin_3=D3_Pin;
-	CE32_stepMotor_Init(&motor[0],&init);
+	CE32_stepMotor_Init(&motor[3],&init);
 }
 
 int Vector_Control(int16_t *locs,int len)
@@ -850,6 +854,24 @@ void cmd_svr(void)
 	{
 		switch(data_ptr[0])
 		{
+			case 0xA0://set speed
+			{
+				htim17.Instance->ARR = *((uint16_t*)&data_ptr[1]); 
+				uint8_t buf[1+1*2];
+				buf[0]=0xA0;
+				memcpy(&buf[1],&data_ptr[1],1*2);
+				CDC_Transmit_FS(buf,sizeof(buf));
+				break;
+			}
+			case 0xD0:
+			{
+				Vector_Control((int16_t*)&data_ptr[1],4);
+				uint8_t buf[1+4*2];
+				buf[0]=0xD0;
+				memcpy(&buf[1],&data_ptr[1],4*2);
+				CDC_Transmit_FS(buf,sizeof(buf));
+				break;
+			}
 			case 0xD1:
 			{
 				Vector_Control((int16_t*)&data_ptr[1],4);
@@ -901,7 +923,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

@@ -1,4 +1,4 @@
---cpu=Cortex-M4.fp
+--cpu=Cortex-M4.fp.sp
 "stepper_controller\startup_stm32f303xe.o"
 "stepper_controller\ce32_command.o"
 "stepper_controller\ce32_stepper_motor_driver.o"
@@ -7,8 +7,13 @@
 "stepper_controller\main.o"
 "stepper_controller\stm32f3xx_it.o"
 "stepper_controller\stm32f3xx_hal_msp.o"
-"stepper_controller\stm32f3xx_hal_adc.o"
-"stepper_controller\stm32f3xx_hal_adc_ex.o"
+"stepper_controller\usb_device.o"
+"stepper_controller\usbd_desc.o"
+"stepper_controller\usbd_cdc_if.o"
+"stepper_controller\usbd_conf.o"
+"stepper_controller\stm32f3xx_ll_usb.o"
+"stepper_controller\stm32f3xx_hal_pcd.o"
+"stepper_controller\stm32f3xx_hal_pcd_ex.o"
 "stepper_controller\stm32f3xx_hal.o"
 "stepper_controller\stm32f3xx_hal_rcc.o"
 "stepper_controller\stm32f3xx_hal_rcc_ex.o"
@@ -22,6 +27,8 @@
 "stepper_controller\stm32f3xx_hal_i2c.o"
 "stepper_controller\stm32f3xx_hal_i2c_ex.o"
 "stepper_controller\stm32f3xx_hal_exti.o"
+"stepper_controller\stm32f3xx_hal_adc.o"
+"stepper_controller\stm32f3xx_hal_adc_ex.o"
 "stepper_controller\stm32f3xx_hal_rtc.o"
 "stepper_controller\stm32f3xx_hal_rtc_ex.o"
 "stepper_controller\stm32f3xx_hal_tim.o"
@@ -29,6 +36,10 @@
 "stepper_controller\stm32f3xx_hal_uart.o"
 "stepper_controller\stm32f3xx_hal_uart_ex.o"
 "stepper_controller\system_stm32f3xx.o"
+"stepper_controller\usbd_core.o"
+"stepper_controller\usbd_ctlreq.o"
+"stepper_controller\usbd_ioreq.o"
+"stepper_controller\usbd_cdc.o"
 --library_type=microlib --strict --scatter "Stepper_controller\Stepper_controller.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
